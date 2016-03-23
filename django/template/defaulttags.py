@@ -408,12 +408,15 @@ class URLNode(Node):
         # {% url ... as var %} construct in which cause return nothing.
         url = ''
         try:
-            url = reverse(view_name, args=args, kwargs=kwargs, current_app=context.current_app)
+            urlconf = None
+            if 'request' in context and hasattr(context['request'], 'urlconf'):
+               urlconf = context['request'].urlconf
+            url = reverse(self.view_name, urlconf=urlconf, args=args, kwargs=kwargs, current_app=context.current_app)
         except NoReverseMatch, e:
             if settings.SETTINGS_MODULE:
                 project_name = settings.SETTINGS_MODULE.split('.')[0]
                 try:
-                    url = reverse(project_name + '.' + view_name,
+                    url = reverse(project_name + '.' + view_name, urlconf=urlconf,
                               args=args, kwargs=kwargs,
                               current_app=context.current_app)
                 except NoReverseMatch:
