@@ -597,7 +597,7 @@ def create_many_related_manager(superclass, rel):
 
         # If the ManyToMany relation has an intermediary model,
         # the add and remove methods do not exist.
-        if rel.through._meta.auto_created:
+        if getattr(rel.through._meta, 'auto_created', False) or getattr(rel.through._meta, 'auto_through', False):
             def add(self, *objs):
                 self._add_items(self.source_field_name, self.target_field_name, *objs)
 
@@ -625,7 +625,7 @@ def create_many_related_manager(superclass, rel):
         def create(self, **kwargs):
             # This check needs to be done here, since we can't later remove this
             # from the method lookup table, as we do with add and remove.
-            if not self.through._meta.auto_created:
+            if not getattr(self.through._meta, 'auto_created', False) and not getattr(self.through._meta, 'auto_through', False):
                 opts = self.through._meta
                 raise AttributeError("Cannot use create() on a ManyToManyField which specifies an intermediary model. Use %s.%s's Manager instead." % (opts.app_label, opts.object_name))
             db = router.db_for_write(self.instance.__class__, instance=self.instance)
@@ -797,7 +797,7 @@ class ManyRelatedObjectsDescriptor(object):
         if instance is None:
             raise AttributeError("Manager must be accessed via instance")
 
-        if not self.related.field.rel.through._meta.auto_created:
+        if not getattr(self.related.field.rel.through._meta, 'auto_created', False) or getattr(self.related.field.rel.through._meta, 'auto_through', False):
             opts = self.related.field.rel.through._meta
             raise AttributeError("Cannot set values on a ManyToManyField which specifies an intermediary model. Use %s.%s's Manager instead." % (opts.app_label, opts.object_name))
 
@@ -854,7 +854,7 @@ class ReverseManyRelatedObjectsDescriptor(object):
         if instance is None:
             raise AttributeError("Manager must be accessed via instance")
 
-        if not self.field.rel.through._meta.auto_created:
+        if not getattr(self.field.rel.through._meta, 'auto_created', False) and not getattr(self.field.rel.through._meta, 'auto_through', False):
             opts = self.field.rel.through._meta
             raise AttributeError("Cannot set values on a ManyToManyField which specifies an intermediary model.  Use %s.%s's Manager instead." % (opts.app_label, opts.object_name))
 
