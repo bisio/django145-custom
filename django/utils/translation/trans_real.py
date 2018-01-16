@@ -465,7 +465,7 @@ def templatize(src, origin=None):
     for t in Lexer(src, origin).tokenize():
         if incomment:
             if t.token_type == TOKEN_BLOCK and t.contents == 'endcomment':
-                content = ''.join(comment)
+                content = u''.join(map(lambda s:s.decode('utf-8'),comment))
                 translators_comment_start = None
                 for lineno, line in enumerate(content.splitlines(True)):
                     if line.lstrip().startswith(TRANSLATOR_COMMENT_MARK):
