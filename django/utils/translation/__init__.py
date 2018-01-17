@@ -71,6 +71,9 @@ _trans = Trans()
 # The Trans class is no more needed, so remove it from the namespace.
 del Trans
 
+def get_date_formats():
+    return _trans.get_date_formats() 
+
 def gettext_noop(message):
     return _trans.gettext_noop(message)
 
